@@ -27,6 +27,23 @@ jobs:
           cp -r tmp_app/android ./android
           rm -rf tmp_app
 
+      - name: Add Android plugin repositories
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("android/settings.gradle.kts")
+          s = p.read_text()
+          before_plugins = s.split("plugins {", 1)[0]
+
+          if "mavenCentral()" not in before_plugins:
+              s = s.replace(
+                  "repositories {",
+                  "repositories {\n        google()\n        mavenCentral()\n        gradlePluginPortal()",
+                  1,
+              )
+              p.write_text(s)
+          PY
       - name: Name, permissions and Android version
         run: |
           python3 - <<'PY'
